@@ -1,4 +1,4 @@
-// package taskstreamer
+package taskstreamer
 
 // import (
 // 	"encoding/json"

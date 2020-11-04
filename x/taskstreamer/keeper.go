@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/raneet10/taskStream/x/taskstreamer/types"
+	"github.com/marbar3778/taskStream/x/taskstreamer/types"
 )
 
 type Keeper struct {
@@ -26,7 +26,7 @@ func NewKeeper(bank bank.Keeper, taskStore sdk.StoreKey, cdc *codec.Codec) Keepe
 
 // Get a individual task
 func (k Keeper) GetTask(ctx sdk.Context, key string) (types.Task, error) {
-	store := sdk.KVStrore(k.taskStore)
+	store := ctx.KVStore(k.taskStore)
 	var task types.Task
 	byteKey := []byte(types.TaskPrefix + key)
 	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), &task)
@@ -39,16 +39,13 @@ func (k Keeper) GetTask(ctx sdk.Context, key string) (types.Task, error) {
 
 // Get all tasks
 func (k Keeper) GetAllTasks(ctx sdk.Context) ([]types.Task, error) {
-	store := sdk.KVStore(k.taskStore)
+	store := ctx.KVStore(k.taskStore)
 	var tasks []types.Task
 	iterator := sdk.KVStorePrefixIterator(store, []byte(types.TaskPrefix))
 
 	for ; iterator.Valid(); iterator.Next() {
 		var task types.Task
-		err := k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(iterator.Key()), &task)
-		if err != nil {
-			return tasks, err
-		}
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(iterator.Key()), &task)
 		tasks = append(tasks, task)
 	}
 
